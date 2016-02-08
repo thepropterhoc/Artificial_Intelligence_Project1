@@ -1,6 +1,8 @@
 #Project 1 Flow Specification 
 ### Shelby Vanhooser, Nick Sparks  
 
+[![Join the chat at https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1](https://badges.gitter.im/thepropterhoc/Artificial_Intelligence_Project1.svg)](https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ___
 ___
 
