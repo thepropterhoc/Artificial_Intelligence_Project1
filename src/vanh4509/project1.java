@@ -44,15 +44,12 @@ public class project1 extends TeamClient {
 	HashMap <UUID, Ship> asteroidToShipMap;
 	HashMap <UUID, Boolean> aimingForBase;
 	HashMap <Ship, Beacon> nearestBeaconMap;
+
+	BeaconManager beaconManager = new BeaconManager();
+	AsteroidManager asteroidManager = new AsteroidManager();
+
 	UUID asteroidCollectorID;
 	double weaponsProbability = 1;
-
-
-	static double ENERGY_BIAS_ADDITION_TERM = 0.0;
-	static double ENERGY_BIAS_SCALING_TERM = 1.0;
-
-	static double ENEMY_BIAS_SCALING_TERM = 1.0;
-	static double ENEMY_BIAS_ADDITION_TERM = 1.0;
 
 
 	/**
@@ -101,12 +98,17 @@ public class project1 extends TeamClient {
 	 */
 	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space,
 			Ship ship) {
+
 		AbstractAction current = ship.getCurrentAction();
 		Position currentPosition = ship.getPosition();
 
+		beaconManager.updateWeights(space, ship); // Update weights 
+		asteroidManager.updateWeights(space, ship); // Update weights
+
+
 		// aim for a beacon if there isn't enough energy
 		if (ship.getEnergy() < 2000) {
-			Beacon beacon = pickNearestBeacon(space, ship);
+			Beacon beacon = beaconManager.getClosestBeacon(space, ship);
 			AbstractAction newAction = null;
 			// if there is no beacon, then just skip a turn
 			if (beacon == null) {
@@ -158,125 +160,7 @@ public class project1 extends TeamClient {
 		}
 	}
 
-	/**
-	 * Gets the action for the weapons based ship
-	 * @param space
-	 * @param ship
-	 * @return
-	 */
-	private AbstractAction getWeaponShipAction(Toroidal2DPhysics space,
-			Ship ship) {
-		AbstractAction current = ship.getCurrentAction();
-		Position currentPosition = ship.getPosition();
-
-		// aim for a beacon if there isn't enough energy
-		if (ship.getEnergy() < 2000) {
-			Beacon beacon = pickNearestBeacon(space, ship);
-			AbstractAction newAction = null;
-			// if there is no beacon, then just skip a turn
-			if (beacon == null) {
-				newAction = new DoNothingAction();
-			} else {
-				newAction = new MoveToObjectAction(space, currentPosition, beacon);
-			}
-			aimingForBase.put(ship.getId(), false);
-			return newAction;
-		}
-
-		// if the ship has enough resourcesAvailable, take it back to base
-		if (ship.getResources().getTotal() > 500) {
-			Base base = findNearestBase(space, ship);
-			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
-			aimingForBase.put(ship.getId(), true);
-			return newAction;
-		}
-
-		// did we bounce off the base?
-		if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
-			current = null;
-			aimingForBase.put(ship.getId(), false);
-		}
-
-		// otherwise aim for the nearest enemy ship
-		if (current == null || current.isMovementFinished(space)) {
-			aimingForBase.put(ship.getId(), false);
-			Ship enemy = pickNearestEnemyShip(space, ship);
-
-			AbstractAction newAction = null;
-
-			if (enemy == null) {
-				// there is no enemy available so collect a beacon
-				Beacon beacon = pickNearestBeacon(space, ship);
-				// if there is no beacon, then just skip a turn
-				if (beacon == null) {
-					newAction = new DoNothingAction();
-				} else {
-					newAction = new MoveToObjectAction(space, currentPosition, beacon);
-				}
-			} else {
-				newAction = new MoveToObjectAction(space, currentPosition, enemy);
-			}
-			return newAction;
-		} else {
-			return ship.getCurrentAction();
-		}
-	}
-
-// ----------------------------------------------- Enemy Ship Methods ----------------------------------------------------
-
-	/**
-	 * Get the BiasedShip object from space
-	 * 
-	 */
-	private BiasedShip getBiasEnemyShip(){
-		BiasedShip retval = new BiasedShip();
-		retval.ship = null;
-		retval.bias = MIN_VALUE;
-
-		for (Ship otherShip : space.getShips()){
-			if (otherShip.getTeamName().equals(ship.getTeamName())) {
-				continue;
-			}
-
-			double energy = otherShip.energy;
-			double distance = space.findShortestDistance(ship.getPosition(), otherShip.getPosition());
-			double currentBias = ((energy / distance) * ENEMY_BIAS_SCALING_TERM) + ENEMY_BIAS_ADDITION_TERM;
-
-			if (currentBias > retval.bias){
-				retval.bias = currentBias;
-				retval.ship = otherShip;
-			}
-
-		}
-
-		return retval;
-	}
-
-
-	/**
-	 * Find the nearest ship on another team and aim for it
-	 * @param space
-	 * @param ship
-	 * @return
-	 */
-	private Ship pickNearestEnemyShip(Toroidal2DPhysics space, Ship ship) {
-		double minDistance = Double.POSITIVE_INFINITY;
-		Ship nearestShip = null;
-		for (Ship otherShip : space.getShips()) {
-			// don't aim for our own team (or ourself)
-			if (otherShip.getTeamName().equals(ship.getTeamName())) {
-				continue;
-			}
-			
-			double distance = space.findShortestDistance(ship.getPosition(), otherShip.getPosition());
-			if (distance < minDistance) {
-				minDistance = distance;
-				nearestShip = otherShip;
-			}
-		}
-		
-		return nearestShip;
-	}
+// ----------------------------------------------- Base Methods ----------------------------------------------------
 
 	/**
 	 * Find the base for this team nearest to this ship
@@ -300,6 +184,10 @@ public class project1 extends TeamClient {
 		}
 		return nearestBase;
 	}
+
+
+
+
 
 	/**
 	 * Returns the asteroid of highest value that isn't already being chased by this team

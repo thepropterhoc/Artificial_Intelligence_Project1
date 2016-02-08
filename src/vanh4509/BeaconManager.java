@@ -28,17 +28,57 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
 public class BeaconManager extends Object {
-	
-	HashMap<UUID, Float> beaconWeights = new HashMap<UUID, Float>();
-	HashMap<Float, UUID> weightBeacons = new HashMap<Float, UUID>();
+
+	private float Beacon_Scale_Factor = 1.0;
+	private float Beacon_Offset_Factor = 1.0;
+
+	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();
+
+	private double maxWeight;
+	private UUID maxWeightUUID;
+
+	private UUID closestDistanceUUID;
+	private double closestDistance;
+
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
-		
+
+		maxWeight = MIN_VALUE;
+		closestDistance = MIN_VALUE;
+
+		for(Beacon b : space.getBeacons()){
+			UUID id = b.id;
+			double energy = b.BEACON_ENERGY_BOOST;
+			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
+
+			double currentWeight = ((energy / distance) * (1 - (ship.energy / ship.SHIP_MAX_ENERGY)) * Beacon_Scale_Factor) + Beacon_Offset_Factor;
+
+			beaconWeights.put(id, new Double(currentBias));
+
+			if (currentWeight > maxWeight){
+				maxWeight = currentWeight;
+				maxWeightUUID = id;
+			}
+
+			if (distance < closestDistance){
+				closestDistance = distance;
+				closestDistanceUUID = id;
+			}
+		}
 	}
 
 	public Beacon getBestBeacon(Toroidal2DPhysics space){
-
+		return (Beacon) space.getObjectByID(maxWeightUUID);
 	}
+
+	public Beacon getClosestBeacon(Toroidal2DPhysics space){
+		return (Beacon) space.getObjectByID(closestDistanceUUID);
+	}
+
+	public double getBiasOfBestBeacon(Beacon b){
+		return beaconWeights.get(b.id).doubleValue();
+	}
+
 
 
 }
