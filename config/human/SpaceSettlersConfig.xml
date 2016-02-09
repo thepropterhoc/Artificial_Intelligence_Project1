@@ -2,7 +2,7 @@
 <SpaceSettlersConfig>
 	<!-- Height/Width in pixels -->
 	<height>800</height>
-	<width>1600</width>
+	<width>1200</width>
 	
 	<!-- Number of steps of simulation -->
 	<simulationSteps>20000</simulationSteps>
@@ -45,7 +45,7 @@
 		<HighLevelTeamConfig>
 			<teamName>HeuristicMinerTeam</teamName>
 			<!-- Pick the one you intend to play against (self versus other) -->
-			<configFile>aggressive-heuristic-clientinit.xml</configFile>
+			<configFile>passive-heuristic-clientinit.xml</configFile>
 		</HighLevelTeamConfig>
 	</teams>
 

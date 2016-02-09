@@ -42,12 +42,12 @@ public class BeaconManager extends Object {
 		beaconWeights = new HashMap<UUID, Double>();
 
 		for(Beacon b : space.getBeacons()){
-			UUID id = b.id;
+			UUID id = b.getId();
 			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-			double currentWeight = ((1 / distance) * (1 - (ship.energy / ship.SHIP_MAX_ENERGY)) * Beacon_Scale_Factor) + Beacon_Offset_Factor;
+			double currentWeight = ((1 / distance) * (1 - (ship.getEnergy() / ship.SHIP_MAX_ENERGY)) * Beacon_Scale_Factor) + Beacon_Offset_Factor;
 
-			beaconWeights.put(id, new Double(currentBias));
+			beaconWeights.put(id, new Double(currentWeight));
 
 			if (currentWeight > maxWeight){
 				maxWeight = currentWeight;
@@ -60,7 +60,7 @@ public class BeaconManager extends Object {
 		if (maxWeightUUID == null) {
 			return null;
 		} else {
-			return (Beacon) space.getObjectByID(maxWeightUUID);
+			return (Beacon) space.getObjectById(maxWeightUUID);
 		}
 	}
 

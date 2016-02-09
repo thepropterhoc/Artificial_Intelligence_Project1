@@ -64,6 +64,8 @@ public class project1 extends TeamClient {
 		for (AbstractObject actionable :  actionableObjects) {
 			if (actionable instanceof Ship) {
 				Ship ship = (Ship) actionable;
+
+				AbstractAction action;
 				
 				//We are at the current ship object NOTE: This implementation assumes only one ship in space
 
@@ -117,13 +119,13 @@ public class project1 extends TeamClient {
 		} else if(asteroidBias > beaconBias && asteroidBias > baseBias) {
 			// Perform move to asteroid action
 			aimingForBase.put(ship.getId(), false);
-			Asteroid asteroid = pickHighestValueFreeAsteroid(space, ship);
+			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
 
 			AbstractAction newAction = null;
 
 			if (asteroid == null) {
 				// there is no asteroid available so collect a beacon
-				Beacon beacon = pickNearestBeacon(space, ship);
+				Beacon beacon = beaconManager.getBestBeacon(space);
 				// if there is no beacon, then just skip a turn
 				if (beacon == null) {
 					newAction = new DoNothingAction();

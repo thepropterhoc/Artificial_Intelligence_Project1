@@ -28,14 +28,14 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
 public class AsteroidManager extends Object {
-    private float ASTEROID_SCALE_FACTOR = 1.0;
-    private float ASTEROID_OFFSET_FACTOR = 0.0;
+    private double ASTEROID_SCALE_FACTOR = 1.0;
+    private double ASTEROID_OFFSET_FACTOR = 0.0;
     
     // max value calculated by assuming maximum valued asteroid to be all-metal and of maximum area
     // (15^2 * PI) * METALS_DENSITY (0.45)
-    private float MAXIMUM_ASTEROID_VALUE = 707.0;
+    private double MAXIMUM_ASTEROID_VALUE = 707.0;
     
-	HashMap<UUID, Float> asteroidWeights = new HashMap<UUID, Float>();
+	HashMap<UUID, Double> asteroidWeights = new HashMap<UUID, Double>();
     UUID maxWeightUUID = null;
     
 	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
@@ -51,20 +51,22 @@ public class AsteroidManager extends Object {
             double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
             
             // update the maps
-            asteroidWeights.put(ast.id, new Double(weight));
+            asteroidWeights.put(ast.getId(), new Double(weight));
             
             // update max uuid
-            maxWeightUUID = weight > maxWeight ? ast.id : maxWeightUUID;
+            maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
         }
 	}
 
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
-        return (Asteroid) space.getObjectByID(maxWeightUUID);
+        return (Asteroid) space.getObjectById(maxWeightUUID);
 	}
 
     public double getBiasOfBestAsteroid(){
         if(maxWeightUUID == null){
-            return 
+            return Double.MAX_VALUE;
+        } else {
+            return asteroidWeights.get(maxWeightUUID).doubleValue();
         }
     }
 }

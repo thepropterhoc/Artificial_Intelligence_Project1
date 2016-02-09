@@ -27,9 +27,9 @@ import spacesettlers.utilities.Position;
 
 public class BaseManager extends Object {
 
-	private float Base_Scale_Factor = 1.0;
-	private float Base_Offset_Factor = 0.0;
-	private float Ship_Mass_Factor = 800.0;
+	private double Base_Scale_Factor = 1.0;
+	private double Base_Offset_Factor = 0.0;
+	private double Ship_Mass_Factor = 800.0;
 
 	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
 
@@ -43,13 +43,13 @@ public class BaseManager extends Object {
 		baseWeights = new HashMap<UUID, Double>();
 
 		for(Base b : space.getBases()){
-			UUID id = b.id;
+			UUID id = b.getId();
 
 			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-			double currentWeight = ((1 / distance) * (ship.mass / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
+			double currentWeight = ((1 / distance) * (ship.getMass() / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
 
-			baseWeights.put(id, new Double(currentBias));
+			baseWeights.put(id, new Double(currentWeight));
 
 			if (currentWeight > maxWeight){
 				maxWeight = currentWeight;
@@ -62,7 +62,7 @@ public class BaseManager extends Object {
 		if (maxWeightUUID == null) {
 			return null;
 		} else {
-			return (Base) space.getObjectByID(maxWeightUUID);
+			return (Base) space.getObjectById(maxWeightUUID);
 		}
 	}
 
