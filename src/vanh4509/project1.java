@@ -29,8 +29,9 @@ import spacesettlers.utilities.Position;
 /**
  * Custom Classes
  */
-import vanh4509.BiasedBeacon;
-import vanh4509.BiasedShip;
+import vanh4509.AsteroidManager;
+import vanh4509.BeaconManager;
+import vanh4509.BaseManager;
 
 /**
  * Collects nearby asteroids and brings them to the base, picks up beacons as needed for energy.
@@ -45,8 +46,9 @@ public class project1 extends TeamClient {
 	HashMap <UUID, Boolean> aimingForBase;
 	HashMap <Ship, Beacon> nearestBeaconMap;
 
-	BeaconManager beaconManager = new BeaconManager();
-	AsteroidManager asteroidManager = new AsteroidManager();
+	BeaconManager beaconManager;
+	AsteroidManager asteroidManager;
+	BaseManager baseManager;
 
 	UUID asteroidCollectorID;
 	double weaponsProbability = 1;
@@ -91,16 +93,15 @@ public class project1 extends TeamClient {
 		AbstractAction current = ship.getCurrentAction();
 		Position currentPosition = ship.getPosition();
 
-		beaconManager.updateWeights(space, ship); // Update weights 
-		asteroidManager.updateWeights(space, ship); // Update weights
+		beaconManager.updateWeights(space, ship); 			// Update weights in our beacon manager
+		asteroidManager.updateWeights(space, ship); 		// Update weights in our asteroid manager
+		baseManager.updateWeights(space, ship);    			// Update weights in our base manager
 
-		//Beacon bestBeacon = beaconManager.getBestBeacon(space);
 		double beaconBias = beaconManager.getBiasOfBestBeacon();
+		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
+		double baseBias = baseManager.getBiasOfBestBase();
 
-		asteroidBias = asteroidManager.getBiasOfBestAsteroid();
-		baseBias = 
-
-		if (beaconBias > asteroidBias){
+		if (beaconBias > asteroidBias && beaconBias > baseBias){
 			// Perform move to beacon action
 			AbstractAction newAction = null;
 			Beacon beacon = beaconManager.getBestBeacon(space);
@@ -114,7 +115,7 @@ public class project1 extends TeamClient {
 
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-		} else {
+		} else if(asteroidBias > beaconBias && asteroidBias > baseBias) {
 			// Perform move to asteroid action
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = pickHighestValueFreeAsteroid(space, ship);
@@ -135,141 +136,15 @@ public class project1 extends TeamClient {
 				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 			return newAction;
-		}
-
-
-		// aim for a beacon if there isn't enough energy
-		if (ship.getEnergy() < 2000) {
-			Beacon beacon = beaconManager.getBestBeacon(space, ship);
-			
-		}
-
-		// if the ship has enough resourcesAvailable, take it back to base
-		if (ship.getResources().getTotal() > 500) {
-			Base base = findNearestBase(space, ship);
+		} else if(baseBias > beaconBias && baseBias > asteroidBias){
+			// Perform move to base action
+			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
 			return newAction;
-		}
-
-		// did we bounce off the base?
-		if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
-			current = null;
-			aimingForBase.put(ship.getId(), false);
-		}
-
-		// otherwise aim for the asteroid
-		if (current == null || current.isMovementFinished(space)) {
-			
 		} else {
 			return ship.getCurrentAction();
 		}
-	}
-
-// ----------------------------------------------- Base Methods ----------------------------------------------------
-
-	/**
-	 * Find the base for this team nearest to this ship
-	 * 
-	 * @param space
-	 * @param ship
-	 * @return
-	 */
-	private Base findNearestBase(Toroidal2DPhysics space, Ship ship) {
-		double minDistance = Double.MAX_VALUE;
-		Base nearestBase = null;
-
-		for (Base base : space.getBases()) {
-			if (base.getTeamName().equalsIgnoreCase(ship.getTeamName())) {
-				double dist = space.findShortestDistance(ship.getPosition(), base.getPosition());
-				if (dist < minDistance) {
-					minDistance = dist;
-					nearestBase = base;
-				}
-			}
-		}
-		return nearestBase;
-	}
-
-
-
-
-
-	/**
-	 * Returns the asteroid of highest value that isn't already being chased by this team
-	 * 
-	 * @return
-	 */
-	private Asteroid pickHighestValueFreeAsteroid(Toroidal2DPhysics space, Ship ship) {
-		Set<Asteroid> asteroids = space.getAsteroids();
-		int bestMoney = Integer.MIN_VALUE;
-		Asteroid bestAsteroid = null;
-
-		for (Asteroid asteroid : asteroids) {
-			if (!asteroidToShipMap.containsKey(asteroid)) {
-				if (asteroid.isMineable() && asteroid.getResources().getTotal() > bestMoney) {
-					bestMoney = asteroid.getResources().getTotal();
-					bestAsteroid = asteroid;
-				}
-			}
-		}
-		//System.out.println("Best asteroid has " + bestMoney);
-		return bestAsteroid;
-	}
-
-	// ---------------------------------- Beacon Methods ------------------------------------------
-
-	/**
-	 * Gets the bias term for seeking out an asteroid for energy
-	 * @param space
-	 * @param ship
-	 * @return BiasedBeacon
-	 */
-	private BiasedBeacon getBiasBeacon(Toroidal2DPhysics space, 
-			Ship ship ){
-
-		BiasedBeacon retval = new BiasedBeacon();
-		retval.beacon = null;;
-		retval.bias = MIN_VALUE;
-
-		for (Beacon b : space.getBeacons()){
-
-			double energy = b.BEACON_ENERGY_BOOST;
-			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
-			double currentBias = ((energy / distance) * ENERGY_BIAS_SCALING_TERM) + ENERGY_BIAS_ADDITION_TERM;
-
-			if (currentBias > retval.bias){
-				retval.bias = currentBias;
-				retval.beacon = b;
-			}
-
-		}
-
-		return retval;
-	}
-
-	/**
-	 * Find the nearest beacon to this ship
-	 * @param space
-	 * @param ship
-	 * @return
-	 */
-	private Beacon pickNearestBeacon(Toroidal2DPhysics space, Ship ship) {
-		// get the current beacons
-		Set<Beacon> beacons = space.getBeacons();
-
-		Beacon closestBeacon = null;
-		double bestDistance = Double.POSITIVE_INFINITY;
-
-		for (Beacon beacon : beacons) {
-			double dist = space.findShortestDistance(ship.getPosition(), beacon.getPosition());
-			if (dist < bestDistance) {
-				bestDistance = dist;
-				closestBeacon = beacon;
-			}
-		}
-
-		return closestBeacon;
 	}
 
 // -------------------------------------- Override Methods -------------------------------------------------
@@ -299,6 +174,10 @@ public class project1 extends TeamClient {
 		asteroidCollectorID = null;
 		aimingForBase = new HashMap<UUID, Boolean>();
 		nearestBeaconMap = new HashMap<Ship, Beacon>;
+
+		beaconManager = new BeaconManager();
+		asteroidManager = new AsteroidManager();
+		baseManager = new BaseManager();
 	}
 
 	@Override

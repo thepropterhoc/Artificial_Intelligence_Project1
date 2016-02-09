@@ -26,6 +26,7 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
 public class BaseManager extends Object {
+	
 	private float Base_Scale_Factor = 1.0;
 	private float Base_Offset_Factor = 0.0;
 	private float Ship_Mass_Factor = 800.0;
