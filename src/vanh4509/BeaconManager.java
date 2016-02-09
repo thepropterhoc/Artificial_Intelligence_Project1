@@ -32,36 +32,42 @@ public class BeaconManager extends Object {
 
 	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();
 
-	private double maxWeight = Double.MAX_VALUE;
+	private double maxWeight = -1.0;
 	private UUID maxWeightUUID = null;
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
 		
-		maxWeight = Double.MIN_VALUE;
+		maxWeight = -1.0;
 		maxWeightUUID = null;
 		beaconWeights.clear();
 
 		for(Beacon b : space.getBeacons()){
 			UUID id = b.getId();
 			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
-
-			double currentWeight = ((1 / distance) * (1 - (ship.getEnergy() / ship.SHIP_MAX_ENERGY)) * Beacon_Scale_Factor) + Beacon_Offset_Factor;
-
+			double distanceFactor = (1.0 / distance);
+			double energyFactor = (1.0 - (( (double) ship.getEnergy()) / (double) ship.SHIP_MAX_ENERGY));
+			double currentWeight = distanceFactor * energyFactor * Beacon_Scale_Factor + Beacon_Offset_Factor;
+			//System.out.printf("Distance factor : %f\n energy factor : %f\ncurrentWeight : %f\n", distanceFactor, energyFactor, currentWeight);
+			
 			beaconWeights.put(id, new Double(currentWeight));
-
+			//System.out.printf("Current weight: %f", currentWeight);
 			if (currentWeight > maxWeight){
 				maxWeight = currentWeight;
 				maxWeightUUID = id;
+				//System.out.println("Did set new max weight");
 			}
 		}
+		//System.out.printf("After weight update, ID is : %s\n", maxWeightUUID);
 	}
 
 	public Beacon getBestBeacon(Toroidal2DPhysics space){
 		if (maxWeightUUID == null) {
+			System.out.println("UUID is null");
 			return null;
 		} else {
 			Beacon b = (Beacon) space.getObjectById(maxWeightUUID);
 			if (b == null){
+				System.out.println("Space returned a null");
 			}
 			return (Beacon) space.getObjectById(maxWeightUUID);
 		}

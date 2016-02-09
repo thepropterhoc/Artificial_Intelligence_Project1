@@ -49,6 +49,8 @@ public class project1 extends TeamClient {
 	AsteroidManager asteroidManager;
 	BaseManager baseManager;
 
+	boolean shouldShoot = false;
+
 	UUID asteroidCollectorID;
 	double weaponsProbability = 1;
 
@@ -102,6 +104,7 @@ public class project1 extends TeamClient {
 		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
 		double baseBias = baseManager.getBiasOfBestBase();
 
+
 		if (beaconBias > asteroidBias && beaconBias > baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to beacon action
 			System.out.println("Did bias for beacon");
@@ -148,6 +151,7 @@ public class project1 extends TeamClient {
 			aimingForBase.put(ship.getId(), true);
 			return newAction;
 		} else {
+			//System.out.printf("Maintaining current : %s\n", current.toString());
 			return current;
 		}
 	}
@@ -157,7 +161,6 @@ public class project1 extends TeamClient {
 	@Override
 	public void getMovementEnd(Toroidal2DPhysics space, Set<AbstractActionableObject> actionableObjects) {
 		ArrayList<Asteroid> finishedAsteroids = new ArrayList<Asteroid>();
-
 		for (UUID asteroidId : asteroidToShipMap.keySet()) {
 			Asteroid asteroid = (Asteroid) space.getObjectById(asteroidId);
 			if (asteroid != null && !asteroid.isAlive()) {
@@ -284,7 +287,7 @@ public class project1 extends TeamClient {
 		for (AbstractActionableObject actionableObject : actionableObjects){
 			SpaceSettlersPowerupEnum powerup = SpaceSettlersPowerupEnum.values()[random.nextInt(SpaceSettlersPowerupEnum.values().length)];
 			if (!actionableObject.getId().equals(asteroidCollectorID) && actionableObject.isValidPowerup(powerup) && random.nextDouble() < weaponsProbability){
-				powerUps.put(actionableObject.getId(), powerup);
+				// powerUps.put(actionableObject.getId(), powerup);
 			}
 		}
 		

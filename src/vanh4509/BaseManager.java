@@ -29,11 +29,11 @@ public class BaseManager extends Object {
 
 	private double Base_Scale_Factor = 1.0;
 	private double Base_Offset_Factor = 0.0;
-	private double Ship_Mass_Factor = 800.0;
+	private double Ship_Mass_Factor = 2000.0;
 
 	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
 
-	private double maxWeight = Double.MAX_VALUE;
+	private double maxWeight = -1.0;
 	private UUID maxWeightUUID = null;
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
@@ -43,17 +43,19 @@ public class BaseManager extends Object {
 		baseWeights.clear();
 
 		for(Base b : space.getBases()){
-			UUID id = b.getId();
+			if (b.getTeamName().equalsIgnoreCase(ship.getTeamName())){
+				UUID id = b.getId();
 
-			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
+				double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-			double currentWeight = ((1 / distance) * (ship.getMass() / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
+				double currentWeight = ((1.0 / distance) * (((double) ship.getMass() - ship.SHIP_MASS) / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
 
-			baseWeights.put(id, new Double(currentWeight));
+				baseWeights.put(id, new Double(currentWeight));
 
-			if (currentWeight > maxWeight){
-				maxWeight = currentWeight;
-				maxWeightUUID = id;
+				if (currentWeight > maxWeight){
+					maxWeight = currentWeight;
+					maxWeightUUID = id;
+				}
 			}
 		}
 	}
@@ -68,7 +70,7 @@ public class BaseManager extends Object {
 
 	public double getBiasOfBestBase(){
 		if (maxWeightUUID == null){
-			return Double.MAX_VALUE;
+			return -1.0;
 		} else {
 			return baseWeights.get(maxWeightUUID).doubleValue();
 		}

@@ -39,7 +39,7 @@ public class AsteroidManager extends Object {
     UUID maxWeightUUID = null;
     
 	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
-        double maxWeight = Double.MIN_VALUE;
+        double maxWeight = -1.0;
         
         // scrub the hashmaps and start over
         asteroidWeights.clear();
@@ -61,12 +61,13 @@ public class AsteroidManager extends Object {
 	}
 
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
+        System.out.println(maxWeightUUID);
         return (Asteroid) space.getObjectById(maxWeightUUID);
 	}
 
     public double getBiasOfBestAsteroid(){
         if(maxWeightUUID == null){
-            return Double.MAX_VALUE;
+            return -1.0;
         } else {
             return asteroidWeights.get(maxWeightUUID).doubleValue();
         }
