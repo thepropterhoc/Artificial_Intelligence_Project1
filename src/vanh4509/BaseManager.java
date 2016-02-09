@@ -40,7 +40,7 @@ public class BaseManager extends Object {
 
 		maxWeight = Double.MIN_VALUE;
 		maxWeightUUID = null;
-		baseWeights = new HashMap<UUID, Double>();
+		baseWeights.clear();
 
 		for(Base b : space.getBases()){
 			UUID id = b.getId();

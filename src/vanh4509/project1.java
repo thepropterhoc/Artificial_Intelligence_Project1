@@ -102,13 +102,15 @@ public class project1 extends TeamClient {
 		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
 		double baseBias = baseManager.getBiasOfBestBase();
 
-		if (beaconBias > asteroidBias && beaconBias > baseBias){
+		if (beaconBias > asteroidBias && beaconBias > baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to beacon action
+			System.out.println("Did bias for beacon");
 			AbstractAction newAction = null;
 			Beacon beacon = beaconManager.getBestBeacon(space);
 			// if there is no beacon, then just skip a turn
 
 			if (beacon == null) {
+				System.out.println("Beacon is null");
 				newAction = new DoNothingAction();
 			} else {
 				newAction = new MoveToObjectAction(space, currentPosition, beacon);
@@ -116,8 +118,9 @@ public class project1 extends TeamClient {
 
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-		} else if(asteroidBias > beaconBias && asteroidBias > baseBias) {
+		} else if(asteroidBias > beaconBias && asteroidBias > baseBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to asteroid action
+			System.out.println("Did bias for asteroid");
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
 
@@ -137,14 +140,15 @@ public class project1 extends TeamClient {
 				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 			return newAction;
-		} else if(baseBias > beaconBias && baseBias > asteroidBias){
+		} else if(baseBias > beaconBias && baseBias > asteroidBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
+			System.out.println("Did bias for base");
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
 			return newAction;
 		} else {
-			return ship.getCurrentAction();
+			return current;
 		}
 	}
 

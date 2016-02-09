@@ -46,15 +46,17 @@ public class AsteroidManager extends Object {
         
         for (Asteroid ast : space.getAsteroids()) {
             // weight is value / distance
-            double value = ast.getResources().getTotal();
-            double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
-            double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
-            
-            // update the maps
-            asteroidWeights.put(ast.getId(), new Double(weight));
-            
-            // update max uuid
-            maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
+            if (ast != null && ast.isMineable() && ast.isAlive()){
+                double value = ast.getResources().getTotal();
+                double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
+                double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
+                
+                // update the maps
+                asteroidWeights.put(ast.getId(), new Double(weight));
+                
+                // update max uuid
+                maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
+            }
         }
 	}
 

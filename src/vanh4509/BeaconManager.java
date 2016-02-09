@@ -36,10 +36,10 @@ public class BeaconManager extends Object {
 	private UUID maxWeightUUID = null;
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
-
+		
 		maxWeight = Double.MIN_VALUE;
 		maxWeightUUID = null;
-		beaconWeights = new HashMap<UUID, Double>();
+		beaconWeights.clear();
 
 		for(Beacon b : space.getBeacons()){
 			UUID id = b.getId();
@@ -60,6 +60,9 @@ public class BeaconManager extends Object {
 		if (maxWeightUUID == null) {
 			return null;
 		} else {
+			Beacon b = (Beacon) space.getObjectById(maxWeightUUID);
+			if (b == null){
+			}
 			return (Beacon) space.getObjectById(maxWeightUUID);
 		}
 	}
