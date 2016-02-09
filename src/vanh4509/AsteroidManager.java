@@ -31,13 +31,33 @@ public class AsteroidManager extends Object {
 	
 	HashMap<UUID, Float> asteroidWeights = new HashMap<UUID, Float>();
 	HashMap<Float, UUID> weightAsteroids = new HashMap<Float, UUID>();
+    UUID maxWeightUUID;
+    
 
-	public void updateWeights(Toroidal2DPhysics space, Ship ship){
-		
+	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
+        double maxWeight = MIN_VALUE;
+        
+        // scrub the hashmaps and start over
+        asteroidWeights.clear();
+        weightAsteroids.clear();
+        
+        for (Asteroid ast : space.getAsteroids()) {
+            // weight is value / distance
+            double value = ast.getResources().getTotal();
+            double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
+            double weight = value / distance;
+            
+            // update the maps
+            asteroidWeights.put(ast.id, weight);
+            weightAsteroids.put(weight, ast.id);
+            
+            // update max uuid
+            maxWeightUUID = weight > maxWeight ? ast.id : maxWeightUUID;
+        }
 	}
 
-	public Beacon getBestAsteroid(Toroidal2DPhysics space){
-
+	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
+        return (Asteroid) space.getObjectByID(maxWeightUUID);
 	}
 
 
