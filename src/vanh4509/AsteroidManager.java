@@ -31,6 +31,10 @@ public class AsteroidManager extends Object {
     private float ASTEROID_SCALE_FACTOR = 1.0;
     private float ASTEROID_OFFSET_FACTOR = 0.0;
     
+    // max value calculated by assuming maximum valued asteroid to be all-metal and of maximum area
+    // (15^2 * PI) * METALS_DENSITY (0.45)
+    private float MAXIMUM_ASTEROID_VALUE = 707.0;
+    
 	HashMap<UUID, Float> asteroidWeights = new HashMap<UUID, Float>();
     UUID maxWeightUUID = null;
     
@@ -44,7 +48,7 @@ public class AsteroidManager extends Object {
             // weight is value / distance
             double value = ast.getResources().getTotal();
             double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
-            double weight = value / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
+            double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
             
             // update the maps
             asteroidWeights.put(ast.id, new Double(weight));
