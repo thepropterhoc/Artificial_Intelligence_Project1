@@ -44,7 +44,6 @@ import vanh4509.BaseManager;
 public class project1 extends TeamClient {
 	HashMap <UUID, Ship> asteroidToShipMap;
 	HashMap <UUID, Boolean> aimingForBase;
-	HashMap <Ship, Beacon> nearestBeaconMap;
 
 	BeaconManager beaconManager;
 	AsteroidManager asteroidManager;
@@ -173,7 +172,6 @@ public class project1 extends TeamClient {
 		asteroidToShipMap = new HashMap<UUID, Ship>();
 		asteroidCollectorID = null;
 		aimingForBase = new HashMap<UUID, Boolean>();
-		nearestBeaconMap = new HashMap<Ship, Beacon>;
 
 		beaconManager = new BeaconManager();
 		asteroidManager = new AsteroidManager();

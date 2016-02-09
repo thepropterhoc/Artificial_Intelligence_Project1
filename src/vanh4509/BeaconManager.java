@@ -27,17 +27,17 @@ import spacesettlers.utilities.Position;
 
 public class BeaconManager extends Object {
 
-	private float Beacon_Scale_Factor = 1.0;
-	private float Beacon_Offset_Factor = 0.0;
+	private double Beacon_Scale_Factor = 1.0;
+	private double Beacon_Offset_Factor = 0.0;
 
 	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();
 
-	private double maxWeight = MAX_VALUE;
+	private double maxWeight = Double.MAX_VALUE;
 	private UUID maxWeightUUID = null;
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
 
-		maxWeight = MIN_VALUE;
+		maxWeight = Double.MIN_VALUE;
 		maxWeightUUID = null;
 		beaconWeights = new HashMap<UUID, Double>();
 
@@ -66,7 +66,7 @@ public class BeaconManager extends Object {
 
 	public double getBiasOfBestBeacon(){
 		if (maxWeightUUID == null){
-			return MAX_VALUE;
+			return Double.MAX_VALUE;
 		} else {
 			return beaconWeights.get(maxWeightUUID).doubleValue();
 		}

@@ -26,19 +26,19 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
 public class BaseManager extends Object {
-	
+
 	private float Base_Scale_Factor = 1.0;
 	private float Base_Offset_Factor = 0.0;
 	private float Ship_Mass_Factor = 800.0;
 
 	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
 
-	private double maxWeight = MAX_VALUE;
+	private double maxWeight = Double.MAX_VALUE;
 	private UUID maxWeightUUID = null;
 
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
 
-		maxWeight = MIN_VALUE;
+		maxWeight = Double.MIN_VALUE;
 		maxWeightUUID = null;
 		baseWeights = new HashMap<UUID, Double>();
 
@@ -68,7 +68,7 @@ public class BaseManager extends Object {
 
 	public double getBiasOfBestBase(){
 		if (maxWeightUUID == null){
-			return MAX_VALUE;
+			return Double.MAX_VALUE;
 		} else {
 			return baseWeights.get(maxWeightUUID).doubleValue();
 		}
