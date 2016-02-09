@@ -8,7 +8,7 @@
 	<simulationSteps>20000</simulationSteps>
 
 	<!-- Timestep for a simulation (in seconds for the physics equations) -->
-	<simulationTimeStep>0.05</simulationTimeStep>
+	<simulationTimeStep>0.01</simulationTimeStep>
 	
 	<!-- Used to initialize all Random objects in the simulator.  If this is 0, it is set using system time. 
 	     Set to a non-zero number to make repeatable games. -->

@@ -29,7 +29,7 @@ public class BaseManager extends Object {
 
 	private double Base_Scale_Factor = 1.0;
 	private double Base_Offset_Factor = 0.0;
-	private double Ship_Mass_Factor = 2000.0;
+	private double Ship_Mass_Factor = 750.0;
 
 	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
 
@@ -48,7 +48,7 @@ public class BaseManager extends Object {
 
 				double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-				double currentWeight = ((1.0 / distance) * (((double) ship.getMass() - ship.SHIP_MASS) / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
+				double currentWeight = ((1.0 / Math.pow(distance, 0.75)) * ((((double)ship.getMass()) - ((double)ship.SHIP_MASS)) / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
 
 				baseWeights.put(id, new Double(currentWeight));
 

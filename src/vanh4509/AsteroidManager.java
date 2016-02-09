@@ -28,7 +28,7 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
 public class AsteroidManager extends Object {
-    private double ASTEROID_SCALE_FACTOR = 1.0;
+    private double ASTEROID_SCALE_FACTOR = 2.0;
     private double ASTEROID_OFFSET_FACTOR = 0.0;
     
     // max value calculated by assuming maximum valued asteroid to be all-metal and of maximum area
@@ -49,7 +49,7 @@ public class AsteroidManager extends Object {
             if (ast != null && ast.isMineable() && ast.isAlive()){
                 double value = ast.getResources().getTotal();
                 double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
-                double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
+                double weight = Math.pow((value / MAXIMUM_ASTEROID_VALUE),0.75) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
                 
                 // update the maps
                 asteroidWeights.put(ast.getId(), new Double(weight));
@@ -61,7 +61,7 @@ public class AsteroidManager extends Object {
 	}
 
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
-        System.out.println(maxWeightUUID);
+        //System.out.println(maxWeightUUID);
         return (Asteroid) space.getObjectById(maxWeightUUID);
 	}
 

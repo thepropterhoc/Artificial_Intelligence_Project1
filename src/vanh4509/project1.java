@@ -42,8 +42,8 @@ import vanh4509.BaseManager;
  * @author amy
  */
 public class project1 extends TeamClient {
-	HashMap <UUID, Ship> asteroidToShipMap;
-	HashMap <UUID, Boolean> aimingForBase;
+    HashMap <UUID, Ship> asteroidToShipMap;
+    HashMap <UUID, Boolean> aimingForBase;
 
 	BeaconManager beaconManager;
 	AsteroidManager asteroidManager;
@@ -94,6 +94,11 @@ public class project1 extends TeamClient {
 			Ship ship) {
 
 		AbstractAction current = ship.getCurrentAction();
+        if (current.isMovementFinished(space)) {
+            // reset the current action if we aren't moving
+            current = null;
+        }
+        
 		Position currentPosition = ship.getPosition();
 
 		beaconManager.updateWeights(space, ship); 			// Update weights in our beacon manager
@@ -103,9 +108,27 @@ public class project1 extends TeamClient {
 		double beaconBias = beaconManager.getBiasOfBestBeacon();
 		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
 		double baseBias = baseManager.getBiasOfBestBase();
-
-
-		if (beaconBias > asteroidBias && beaconBias > baseBias && (current == null || current instanceof DoNothingAction)){
+        
+        // compute the maximum bias
+        double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
+        
+        if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
+			// Perform move to base action
+			System.out.println("Did bias for base");
+			Base base = baseManager.getBestBase(space);
+			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
+			aimingForBase.put(ship.getId(), true);
+			return newAction;   
+        }
+        
+        if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500 ) {
+            // make sure we aren't loitering at the base
+            maxBias = Math.max(asteroidBias, beaconBias);
+            current = null;
+            aimingForBase.put(ship.getId(), false);
+        }
+        
+        if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to beacon action
 			System.out.println("Did bias for beacon");
 			AbstractAction newAction = null;
@@ -121,7 +144,9 @@ public class project1 extends TeamClient {
 
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-		} else if(asteroidBias > beaconBias && asteroidBias > baseBias && (current == null || current instanceof DoNothingAction)) {
+        }
+        
+        if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to asteroid action
 			System.out.println("Did bias for asteroid");
 			aimingForBase.put(ship.getId(), false);
@@ -139,21 +164,15 @@ public class project1 extends TeamClient {
 					newAction = new MoveToObjectAction(space, currentPosition, beacon);
 				}
 			} else {
-				asteroidToShipMap.put(asteroid.getId(), ship);
+                asteroidToShipMap.put(asteroid.getId(), ship);
 				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 			return newAction;
-		} else if(baseBias > beaconBias && baseBias > asteroidBias && (current == null || current instanceof DoNothingAction)){
-			// Perform move to base action
-			System.out.println("Did bias for base");
-			Base base = baseManager.getBestBase(space);
-			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
-			aimingForBase.put(ship.getId(), true);
-			return newAction;
-		} else {
-			//System.out.printf("Maintaining current : %s\n", current.toString());
-			return current;
-		}
+        }
+        
+        // if nothing else, return current
+        //System.out.printf("Maintaining current : %s\n", current.toString());
+		return current;
 	}
 
 // -------------------------------------- Override Methods -------------------------------------------------
