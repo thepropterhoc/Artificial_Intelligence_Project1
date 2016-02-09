@@ -1,7 +1,7 @@
 #Project 1  
 ### Shelby Vanhooser, Nick Sparks  
 
-[![Join the chat at https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1](https://badges.gitter.im/thepropterhoc/Artificial_Intelligence_Project1.svg)](https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Let's hope it's building](https://img.shields.io/badge/🚀heuristic-unknown-yellow.svg)](https://img.shields.io/badge/🚀heuristic-unknown-yellow.svg) [![Is it competing?](https://img.shields.io/badge/💡status-inDevelopment-yellow.svg)](https://img.shields.io/badge/💡status-inDevelopment-yellow.svg)
+[![Join the chat at https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1](https://badges.gitter.im/thepropterhoc/Artificial_Intelligence_Project1.svg)](https://gitter.im/thepropterhoc/Artificial_Intelligence_Project1?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Let's hope it's building](https://img.shields.io/badge/🚀heuristic-winning-green)](https://img.shields.io/badge/🚀heuristic-winning-green) [![Is it competing?](https://img.shields.io/badge/💡status-improving-yellow.svg)](https://img.shields.io/badge/💡status-inDevelopment-yellow.svg)
 
 ___
 

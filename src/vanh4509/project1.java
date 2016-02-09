@@ -114,7 +114,6 @@ public class project1 extends TeamClient {
         
         if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
-			System.out.println("Did bias for base");
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
@@ -130,7 +129,6 @@ public class project1 extends TeamClient {
         
         if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to beacon action
-			System.out.println("Did bias for beacon");
 			AbstractAction newAction = null;
 			Beacon beacon = beaconManager.getBestBeacon(space);
 			// if there is no beacon, then just skip a turn
@@ -148,7 +146,6 @@ public class project1 extends TeamClient {
         
         if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to asteroid action
-			System.out.println("Did bias for asteroid");
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
 
