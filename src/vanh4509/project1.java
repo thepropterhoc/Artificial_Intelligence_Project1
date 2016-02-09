@@ -67,19 +67,8 @@ public class project1 extends TeamClient {
 				//We are at the current ship object NOTE: This implementation assumes only one ship in space
 
 				// the first time we initialize, decide which ship is the asteroid collector
-				if (asteroidCollectorID == null) {
-					asteroidCollectorID = ship.getId();
-				}
-				
-				AbstractAction action;
-				if (ship.getId().equals(asteroidCollectorID)) {
-					// get the asteroids
-					action = getAsteroidCollectorAction(space, ship);
-				} else {
-					// this ship will try to shoot other ships so its movements take it towards the nearest other ship not on our team
-					action = getWeaponShipAction(space, ship);
-				}
-				
+				action = getAsteroidCollectorAction(space, ship);
+
 				actions.put(ship.getId(), action);
 				
 			} else {
@@ -105,37 +94,28 @@ public class project1 extends TeamClient {
 		beaconManager.updateWeights(space, ship); // Update weights 
 		asteroidManager.updateWeights(space, ship); // Update weights
 
+		//Beacon bestBeacon = beaconManager.getBestBeacon(space);
+		double beaconBias = beaconManager.getBiasOfBestBeacon();
 
-		// aim for a beacon if there isn't enough energy
-		if (ship.getEnergy() < 2000) {
-			Beacon beacon = beaconManager.getClosestBeacon(space, ship);
+		asteroidBias = asteroidManager.getBiasOfBestAsteroid();
+		baseBias = 
+
+		if (beaconBias > asteroidBias){
+			// Perform move to beacon action
 			AbstractAction newAction = null;
+			Beacon beacon = beaconManager.getBestBeacon(space);
 			// if there is no beacon, then just skip a turn
+
 			if (beacon == null) {
 				newAction = new DoNothingAction();
 			} else {
 				newAction = new MoveToObjectAction(space, currentPosition, beacon);
 			}
+
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-		}
-
-		// if the ship has enough resourcesAvailable, take it back to base
-		if (ship.getResources().getTotal() > 500) {
-			Base base = findNearestBase(space, ship);
-			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
-			aimingForBase.put(ship.getId(), true);
-			return newAction;
-		}
-
-		// did we bounce off the base?
-		if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
-			current = null;
-			aimingForBase.put(ship.getId(), false);
-		}
-
-		// otherwise aim for the asteroid
-		if (current == null || current.isMovementFinished(space)) {
+		} else {
+			// Perform move to asteroid action
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = pickHighestValueFreeAsteroid(space, ship);
 
@@ -155,6 +135,32 @@ public class project1 extends TeamClient {
 				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 			return newAction;
+		}
+
+
+		// aim for a beacon if there isn't enough energy
+		if (ship.getEnergy() < 2000) {
+			Beacon beacon = beaconManager.getBestBeacon(space, ship);
+			
+		}
+
+		// if the ship has enough resourcesAvailable, take it back to base
+		if (ship.getResources().getTotal() > 500) {
+			Base base = findNearestBase(space, ship);
+			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
+			aimingForBase.put(ship.getId(), true);
+			return newAction;
+		}
+
+		// did we bounce off the base?
+		if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
+			current = null;
+			aimingForBase.put(ship.getId(), false);
+		}
+
+		// otherwise aim for the asteroid
+		if (current == null || current.isMovementFinished(space)) {
+			
 		} else {
 			return ship.getCurrentAction();
 		}

@@ -25,12 +25,12 @@ import spacesettlers.objects.resources.ResourcePile;
 import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 
-public class BeaconManager extends Object {
+public class BaseManager extends Object {
+	private float Base_Scale_Factor = 1.0;
+	private float Base_Offset_Factor = 0.0;
+	private float Ship_Mass_Factor = 800.0;
 
-	private float Beacon_Scale_Factor = 1.0;
-	private float Beacon_Offset_Factor = 0.0;
-
-	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();
+	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
 
 	private double maxWeight = MAX_VALUE;
 	private UUID maxWeightUUID = null;
@@ -39,15 +39,16 @@ public class BeaconManager extends Object {
 
 		maxWeight = MIN_VALUE;
 		maxWeightUUID = null;
-		beaconWeights = new HashMap<UUID, Double>();
+		baseWeights = new HashMap<UUID, Double>();
 
-		for(Beacon b : space.getBeacons()){
+		for(Base b : space.getBases()){
 			UUID id = b.id;
+
 			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-			double currentWeight = ((1 / distance) * (1 - (ship.energy / ship.SHIP_MAX_ENERGY)) * Beacon_Scale_Factor) + Beacon_Offset_Factor;
+			double currentWeight = ((1 / distance) * (ship.mass / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
 
-			beaconWeights.put(id, new Double(currentBias));
+			baseWeights.put(id, new Double(currentBias));
 
 			if (currentWeight > maxWeight){
 				maxWeight = currentWeight;
@@ -56,21 +57,19 @@ public class BeaconManager extends Object {
 		}
 	}
 
-	public Beacon getBestBeacon(Toroidal2DPhysics space){
+	public Base getBestBase(Toroidal2DPhysics space){
 		if (maxWeightUUID == null) {
 			return null;
 		} else {
-			return (Beacon) space.getObjectByID(maxWeightUUID);
+			return (Base) space.getObjectByID(maxWeightUUID);
 		}
 	}
 
-	public double getBiasOfBestBeacon(){
+	public double getBiasOfBestBase(){
 		if (maxWeightUUID == null){
 			return MAX_VALUE;
 		} else {
-			return beaconWeights.get(maxWeightUUID).doubleValue();
+			return baseWeights.get(maxWeightUUID).doubleValue();
 		}
 	}
-
-
 }
