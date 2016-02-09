@@ -59,6 +59,4 @@ public class AsteroidManager extends Object {
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
         return (Asteroid) space.getObjectByID(maxWeightUUID);
 	}
-
-
 }
