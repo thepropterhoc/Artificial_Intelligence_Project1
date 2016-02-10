@@ -9,7 +9,7 @@
 	<teamColorBlue>255</teamColorBlue>
 	
 	<!-- The name that shows up in the ladder -->
-	<ladderName>Shelby Vanhooser</ladderName>
+	<ladderName>NSClient</ladderName>
 	
 	<!-- The number of ships in the team.  Note, if this is bigger than the maximum number of allowable ships per team, it is ignored -->
 	<numberInitialShipsInTeam>1</numberInitialShipsInTeam>
