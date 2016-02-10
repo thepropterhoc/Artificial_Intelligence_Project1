@@ -120,6 +120,12 @@ public class project1 extends TeamClient {
         // compute the maximum bias
     double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
     
+    // check for low energy
+    if (ship.getEnergy() < 2000) {
+        current = null;
+        maxBias = beaconBias;
+    }
+    
     if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
