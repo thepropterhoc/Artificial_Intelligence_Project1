@@ -30,7 +30,6 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 
 import spacesettlers.utilities.Position;
 
-
 /**
  * Analyzes the state of the space to determine how favorable conditions are for navigating to a Beacon
  * 
