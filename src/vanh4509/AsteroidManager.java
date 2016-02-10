@@ -1,7 +1,5 @@
 package vanh4509;
 
-import vanh4509.vanh4509;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,12 +53,12 @@ public class AsteroidManager extends Object {
     private boolean useStdKRep;
     private String friendlyTeamName = null;
 
-    private double ASTEROID_SCALE_FACTOR = 1.2;
-    private double ASTEROID_OFFSET_FACTOR = 0.01;
+    private static final double ASTEROID_SCALE_FACTOR = 1.2;
+    private static final double ASTEROID_OFFSET_FACTOR = 0.01;
     
     // max value calculated by assuming maximum valued asteroid to be all-metal and of maximum area
     // (15^2 * PI) * METALS_DENSITY (0.45)
-    private double MAXIMUM_ASTEROID_VALUE = 707.0;
+    private static final double MAXIMUM_ASTEROID_VALUE = 707.0;
     
 	HashMap<UUID, Double> asteroidWeights;
     HashMap<UUID, Double> teamToAsteroidWeightsMap;

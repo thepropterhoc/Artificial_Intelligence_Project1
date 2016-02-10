@@ -30,7 +30,6 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 
 import spacesettlers.utilities.Position;
 
-
 /**
  * Analyzes the state of the space to determine how favorable conditions are for navigating to a Base
  * 
@@ -40,16 +39,25 @@ import spacesettlers.utilities.Position;
  */
 public class BaseManager extends Object {
 
-	private double Base_Scale_Factor = 1.1;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
-	private double Base_Offset_Factor = 0.0;  		// An offset factor used to determine how overall more favorable we want to be to navigating to Bases
-	private double Ship_Mass_Factor = 750.0;			// A scaling factor used to determine how much mass, i.e. resources we have on board 
+	// --------------------- Class Variable Declarations ---------------------
 
-	private double maxWeight = -1.0;						// The maximum weight currently assigned to the best base in the space
-	private UUID maxWeightUUID = null;					// The UUID of the base that is currently most favored 
+	private static final double Base_Scale_Factor = 1.1;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
+	private static final double Base_Offset_Factor = 0.0;  		// An offset factor used to determine how overall more favorable we want to be to navigating to Bases
+	private static final double Ship_Mass_Factor = 750.0;			// A scaling factor used to determine how much mass, i.e. resources we have on board 
+
+	private double maxWeight = -1.0;								// The maximum weight currently assigned to the best Base in the space
+	private UUID maxWeightUUID = null;							// The UUID of the Base that is currently most favored 
+
+
+	// ------------------------ Weight Updating Methods ----------------------------
 
 	/**
-	*	Takes in the current state of the space and updates the favorability setting for each base, but it only saves the best base for efficiency
+	*	@description Takes in the current state of the space and updates the favorability setting for each Base, but it only saves the best Base for efficiency
 	*	
+	* @param space (Toroidal2DPhysics) - The current space conditions of the game
+	* @param ship (Ship) - The player's current ship
+	* 
+	* @return (void)
 	*/
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
 
@@ -62,7 +70,10 @@ public class BaseManager extends Object {
 
 				double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
 
-				double currentWeight = ((1.0 / Math.pow(distance, 0.75)) * ((((double)ship.getMass()) - ((double)ship.SHIP_MASS)) / Ship_Mass_Factor) * Base_Scale_Factor) + Base_Offset_Factor;
+				double distanceFactor = (1.0 / distance);
+				double massFactor = (((double)ship.getMass()) - ((double)ship.SHIP_MASS)) / Ship_Mass_Factor;
+
+				double currentWeight = (distanceFactor * massFactor * Base_Scale_Factor) + Base_Offset_Factor;
 
 				if (currentWeight > maxWeight){
 					maxWeight = currentWeight;
@@ -72,9 +83,14 @@ public class BaseManager extends Object {
 		}
 	}
 
+	// --------------------- Value Exporting Methods -----------------------
+
 	/**
-	* Returns the best base from the current space, if it exists
+	* @description Returns the best Base from the current space, if it exists
 	* 
+	* @param space (Toroidal2DPhysics) - The current space conditions of the game
+	* 
+	* @return (Base) - The best Base available as of the last update of space conditions
 	*/
 	public Base getBestBase(Toroidal2DPhysics space){
 		if (maxWeightUUID == null) {
@@ -84,9 +100,13 @@ public class BaseManager extends Object {
 		}
 	}
 
+
 	/**
-	* Returns the bias of the best base as observed from the last update
+	* @description Returns the bias of the best Base as observed from the last update
 	*
+	* @param None
+	* 
+	* @return (double) - The bias of the best Base available.  This is a scaled value representing the overall favorability of the best Base 
 	*/
 	public double getBiasOfBestBase(){
 		if (maxWeightUUID == null){

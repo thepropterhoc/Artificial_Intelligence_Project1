@@ -40,28 +40,39 @@ import spacesettlers.utilities.Position;
  */
 public class BeaconManager extends Object {
 
-	private double Beacon_Scale_Factor = 0.85;			// A scaling factor used to determine the sensitivity of the BeaconManager to conditions in the environment
-	private double Beacon_Offset_Factor = 0.0;			// An offset factor used to determine how overall more favorable we want to be to navigating to Beacons
+	// --------------------- Class Variable Declarations ---------------------
 
-	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();
+	private static final double Beacon_Scale_Factor = 0.9;			// A scaling factor used to determine the sensitivity of the BeaconManager to conditions in the environment
+	private static final double Beacon_Offset_Factor = 0.0;			// An offset factor used to determine how overall more favorable we want to be to navigating to Beacons
 
-	private double maxWeight = -1.0;
-	private UUID maxWeightUUID = null;
+	private double maxWeight = -1.0;  				// Stores the weight of the best available Beacon
+	private UUID maxWeightUUID = null;				// Stores the UUID of the best available Beacon
 
+	// ------------------------ Weight Updating Methods ----------------------------
+
+	/**
+	*	@description Takes in the current state of the space and updates the favorability setting for each Beacon, but it only saves the best Beacon for efficiency
+	*	
+	* @param space (Toroidal2DPhysics) - The current space conditions of the game
+	* @param ship (Ship) - The player's current ship
+	* 
+	* @return (void)
+	*/
 	public void updateWeights(Toroidal2DPhysics space, Ship ship){
 		
 		maxWeight = -1.0;
 		maxWeightUUID = null;
-		beaconWeights.clear();
 
 		for(Beacon b : space.getBeacons()){
 			UUID id = b.getId();
+
 			double distance = space.findShortestDistance(ship.getPosition(), b.getPosition());
+
 			double distanceFactor = (1.0 / distance);
 			double energyFactor = (1.0 - (( (double) ship.getEnergy()) / (double) ship.SHIP_MAX_ENERGY));
+
 			double currentWeight = distanceFactor * energyFactor * Beacon_Scale_Factor + Beacon_Offset_Factor;
-			
-			beaconWeights.put(id, new Double(currentWeight));
+
 			if (currentWeight > maxWeight){
 				maxWeight = currentWeight;
 				maxWeightUUID = id;
@@ -69,7 +80,15 @@ public class BeaconManager extends Object {
 		}
 	}
 
-	public Beacon getBestBeacon(Toroidal2DPhysics space){
+	// --------------------- Value Exporting Methods -----------------------
+
+	/**
+	* @description Returns the best Beacon from the current space, if it exists
+	* 
+	* @param space (Toroidal2DPhysics) - The current space conditions of the game
+	* 
+	* @return (Beacon) - The best Beacon available as of the last update of space conditions
+	*/	public Beacon getBestBeacon(Toroidal2DPhysics space){
 		if (maxWeightUUID == null) {
 			return null;
 		} else {
@@ -77,6 +96,13 @@ public class BeaconManager extends Object {
 		}
 	}
 
+	/**
+	* @description Returns the bias of the best Beacon as observed from the last update
+	*
+	* @param None
+	* 
+	* @return (double) - The bias of the best Beacon available.  This is a scaled value representing the overall favorability of the best Beacon 
+	*/
 	public double getBiasOfBestBeacon(){
 		if (maxWeightUUID == null){
 			return -1;
