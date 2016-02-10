@@ -27,7 +27,7 @@ import spacesettlers.utilities.Position;
 
 public class BeaconManager extends Object {
 
-	private double Beacon_Scale_Factor = 0.9;
+	private double Beacon_Scale_Factor = 0.85;
 	private double Beacon_Offset_Factor = 0.0;
 
 	private HashMap<UUID, Double> beaconWeights = new HashMap<UUID, Double>();

@@ -41,7 +41,7 @@ import vanh4509.BaseManager;
  * If there is more than one ship, only one ship is dedicated to picking up asteroids and
  * the other is dedicated to using weapons
  * 
- * @author amy
+ * @author Shelby Vanhooser, Nick Sparks
  */
 public class project1 extends TeamClient {
   HashMap <UUID, Ship> asteroidToShipMap;
@@ -102,7 +102,6 @@ public class project1 extends TeamClient {
     // reset the current action if we aren't moving
       current = null;
     }
-    
 
     if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
 			current = null;
@@ -128,7 +127,6 @@ public class project1 extends TeamClient {
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
-			//AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			
 			return newAction;   
     } else if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
@@ -165,11 +163,9 @@ public class project1 extends TeamClient {
 					newAction = new DoNothingAction();
 				} else {
 					newAction = new MoveToObjectAction(space, currentPosition, beacon);
-					//newAction = new MoveToObjectAction(space, currentPosition, beacon);
 				}
 			} else {
 				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
-				//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 
 			return newAction;
@@ -187,7 +183,6 @@ public class project1 extends TeamClient {
 			Asteroid asteroid = (Asteroid) space.getObjectById(asteroidId);
 			if (asteroid != null && !asteroid.isAlive()) {
 				finishedAsteroids.add(asteroid);
-				//System.out.println("Removing asteroid from map");
 			}
 		}
 
@@ -262,19 +257,6 @@ public class project1 extends TeamClient {
 				}
 			}		
 		} 
-		
-		// see if you can buy EMPs
-		if (purchaseCosts.canAfford(PurchaseTypes.POWERUP_EMP_LAUNCHER, resourcesAvailable)) {
-			for (AbstractActionableObject actionableObject : actionableObjects) {
-				if (actionableObject instanceof Ship) {
-					Ship ship = (Ship) actionableObject;
-					
-					if (!ship.getId().equals(asteroidCollectorID) && ship.isValidPowerup(PurchaseTypes.POWERUP_EMP_LAUNCHER.getPowerupMap())) {
-						purchases.put(ship.getId(), PurchaseTypes.POWERUP_EMP_LAUNCHER);
-					}
-				}
-			}		
-		} 
 
 
 		return purchases;
@@ -295,7 +277,7 @@ public class project1 extends TeamClient {
 		for (AbstractActionableObject actionableObject : actionableObjects){
 			SpaceSettlersPowerupEnum powerup = SpaceSettlersPowerupEnum.values()[random.nextInt(SpaceSettlersPowerupEnum.values().length)];
 			if (!actionableObject.getId().equals(asteroidCollectorID) && actionableObject.isValidPowerup(powerup) && random.nextDouble() < weaponsProbability){
-				// powerUps.put(actionableObject.getId(), powerup);
+				//powerUps.put(actionableObject.getId(), powerup);
 			}
 		}
 		
