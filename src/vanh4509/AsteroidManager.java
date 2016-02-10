@@ -51,7 +51,7 @@ public class AsteroidManager extends Object {
         
         for (Asteroid ast : space.getAsteroids()) {
             // weight is value / distance
-            if (ast != null && ast.isMineable() && ast.isAlive()){
+            if (ast != null && ast.isMineable() && ast.isAlive() && ast.getPosition().getTranslationalVelocity().getMagnitude() == 0.0){
                 double value = ast.getResources().getTotal();
                 double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
                 double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
@@ -96,9 +96,5 @@ public class AsteroidManager extends Object {
         } else {
             return asteroidWeights.get(maxWeightUUID).doubleValue();
         }
-    }
-
-    public Vector2D velocityVectorAsteroidIntercept(Toroidal2DPhysics space, Asteroid ast){
-        return asteroidVelocities.get(ast.getId()).multiply(2.0f);
     }
 }
