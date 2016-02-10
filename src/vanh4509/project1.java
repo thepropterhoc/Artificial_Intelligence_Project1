@@ -113,7 +113,7 @@ public class project1 extends TeamClient {
         
         // compute the maximum bias
     double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
-    System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
+    //System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
     if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
@@ -122,7 +122,8 @@ public class project1 extends TeamClient {
 			aimingForBase.put(ship.getId(), true);
 			return newAction;   
     }
-    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500 ) {
+    
+    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500) {
         // make sure we aren't loitering at the base
         maxBias = Math.max(asteroidBias, beaconBias);
         current = null;
