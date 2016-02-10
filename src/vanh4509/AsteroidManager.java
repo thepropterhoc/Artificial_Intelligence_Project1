@@ -28,6 +28,29 @@ import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
 import spacesettlers.utilities.Vector2D;
 
+/**
+ * Manages the bias value for every asteroid in the game field.
+ *
+ * Handles two representations of knowledge, one propositional
+ * model that looks at all asteroids as potential candidates for
+ * mining, and another relational representation that only
+ * considers asteroids we're closest to.
+ * 
+ * @param useStdKRep changes the knowledge representation used during play
+ * 
+ * @param friendlyTeamName our team name. Used in alternate KR
+ * 
+ * @param asteroidWeights map for standard KR. tracks all asteroids and
+ * their bias values, denoted as weights
+ * 
+ * @param teamToAsteroidWeightsMap map for the alternate KR. tracks asteroids
+ * we're closest to
+ * 
+ * @param maxWeightUUID stores the UUID of the most valuable asteroid tracked
+ * 
+ * ASTEROID_SCALE_FACTOR and  ASTEROID_OFFSET_FACTOR are used to tweak how often
+ * the agent goes to an asteroid instead of a base or a beacon
+ */
 public class AsteroidManager extends Object {
     private boolean useStdKRep;
     private String friendlyTeamName = null;
@@ -44,6 +67,15 @@ public class AsteroidManager extends Object {
 
     UUID maxWeightUUID = null;
     
+    /**
+     * Updates the weights of each asteroid based on KR used.
+     * 
+     * The weight of each asteroid is determined by its distance
+     * from the current ship and its value.
+     * 
+     * @param space the current simulation
+     * @param ship the current ship
+     */
 	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
         double maxWeight = -1.0;
 
@@ -56,7 +88,7 @@ public class AsteroidManager extends Object {
         
         if (useStdKRep) {
             for (Asteroid ast : space.getAsteroids()) {
-                // weight is value / distance
+                // weight is value / distance. only consider stationary asteroids
                 if (ast != null && ast.isMineable() && ast.isAlive() && ast.getPosition().getTranslationalVelocity().getMagnitude() == 0.0){
                     double value = ast.getResources().getTotal();
                     double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
@@ -86,7 +118,8 @@ public class AsteroidManager extends Object {
                     }
                     // update the map
                     double weight = getAsteroidWeight(closestDistance, ast.getResources().getTotal());
-
+                    
+                    // we only care if we're the closest
                     if (friendlyTeamName.equals(closestTeamName)) {
                         // update max uuid and weight
                         maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
@@ -97,11 +130,21 @@ public class AsteroidManager extends Object {
         }
 	}
 
+    /**
+     * Returns the asteroid with the highest weight
+     * as determined by updateWeights.
+     * 
+     * @param space the current simulation
+     */
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
         //System.out.println(maxWeightUUID);
         return (Asteroid) space.getObjectById(maxWeightUUID);
 	}
 
+    /**
+     * Returns the bias value of the best asteroid
+     * as determined by updateWeights.
+     */
     public double getBiasOfBestAsteroid(){
         if(maxWeightUUID == null){
             return -1.0;
@@ -110,14 +153,28 @@ public class AsteroidManager extends Object {
         }
     }
     
+    /**
+     * Calculates the weight of an asteroid given its distance and value
+     * 
+     * @param distance the distance from the ship
+     * @param value the total number of resources on the asteroid
+     */
     private double getAsteroidWeight(double distance, double value) {
         return (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
     }
     
+    /**
+     * Default constructor. Uses standard KR.
+     */
     public AsteroidManager() {
         this(true);
     }
     
+    /**
+     * Constructor. Allows you to switch between KRs.
+     * 
+     * @param useStd whether you want to use the standard knowledge representation
+     */
     public AsteroidManager(boolean useStd) {
         this.useStdKRep = useStd;
         asteroidWeights = new HashMap<UUID, Double>();
