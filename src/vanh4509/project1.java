@@ -10,6 +10,7 @@ import java.util.UUID;
 import spacesettlers.actions.AbstractAction;
 import spacesettlers.actions.DoNothingAction;
 import spacesettlers.actions.MoveToObjectAction;
+import spacesettlers.actions.MoveAction;
 import spacesettlers.actions.PurchaseCosts;
 import spacesettlers.actions.PurchaseTypes;
 import spacesettlers.clients.*;
@@ -24,6 +25,7 @@ import spacesettlers.objects.powerups.SpaceSettlersPowerupEnum;
 import spacesettlers.objects.resources.ResourcePile;
 import spacesettlers.simulator.Toroidal2DPhysics;
 import spacesettlers.utilities.Position;
+import spacesettlers.utilities.Vector2D;
 
 
 /**
@@ -110,24 +112,24 @@ public class project1 extends TeamClient {
 		double baseBias = baseManager.getBiasOfBestBase();
         
         // compute the maximum bias
-        double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
-        
-        if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
+    double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
+    System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
+    if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
-			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
+			AbstractAction newAction = new MoveAction(space, currentPosition, base.getPosition());
+			//AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
 			return newAction;   
-        }
+    }
+    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500 ) {
+        // make sure we aren't loitering at the base
+        maxBias = Math.max(asteroidBias, beaconBias);
+        current = null;
+        aimingForBase.put(ship.getId(), false);
+    }
         
-        if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500 ) {
-            // make sure we aren't loitering at the base
-            maxBias = Math.max(asteroidBias, beaconBias);
-            current = null;
-            aimingForBase.put(ship.getId(), false);
-        }
-        
-        if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
+    if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to beacon action
 			AbstractAction newAction = null;
 			Beacon beacon = beaconManager.getBestBeacon(space);
@@ -137,14 +139,14 @@ public class project1 extends TeamClient {
 				System.out.println("Beacon is null");
 				newAction = new DoNothingAction();
 			} else {
-				newAction = new MoveToObjectAction(space, currentPosition, beacon);
+				newAction = new MoveAction(space, currentPosition, beacon.getPosition());
 			}
 
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-        }
+    }
         
-        if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
+    if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to asteroid action
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
@@ -158,14 +160,17 @@ public class project1 extends TeamClient {
 				if (beacon == null) {
 					newAction = new DoNothingAction();
 				} else {
-					newAction = new MoveToObjectAction(space, currentPosition, beacon);
+					newAction = new MoveAction(space, currentPosition, beacon.getPosition());
+					//newAction = new MoveToObjectAction(space, currentPosition, beacon);
 				}
 			} else {
-                asteroidToShipMap.put(asteroid.getId(), ship);
-				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
+        asteroidToShipMap.put(asteroid.getId(), ship);
+        Vector2D interceptVector = asteroidManager.velocityVectorAsteroidIntercept(space, asteroid);
+				newAction = new MoveAction(space, currentPosition, asteroid.getPosition(), interceptVector);
+				//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
 			}
 			return newAction;
-        }
+    }
         
         // if nothing else, return current
         //System.out.printf("Maintaining current : %s\n", current.toString());

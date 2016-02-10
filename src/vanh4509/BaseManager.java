@@ -28,7 +28,7 @@ import spacesettlers.utilities.Position;
 public class BaseManager extends Object {
 
 	private double Base_Scale_Factor = 1.0;
-	private double Base_Offset_Factor = 0.0;
+	private double Base_Offset_Factor = 0.01;
 	private double Ship_Mass_Factor = 750.0;
 
 	private HashMap<UUID, Double> baseWeights = new HashMap<UUID, Double>();
