@@ -92,9 +92,7 @@ public class project1 extends TeamClient {
 	 * @param ship
 	 * @return
 	 */
-	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space,
-			Ship ship) {
-
+	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space, Ship ship) {
 		AbstractAction current = ship.getCurrentAction();
         if (current.isMovementFinished(space)) {
             // reset the current action if we aren't moving
@@ -112,25 +110,31 @@ public class project1 extends TeamClient {
 		double baseBias = baseManager.getBiasOfBestBase();
         
         // compute the maximum bias
-    double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
-    //System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
-    if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
+        double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
+
+        // System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
+    
+        if (ship.getEnergy() < 1500) {
+            maxBias = beaconBias;
+        }
+    
+        if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveAction(space, currentPosition, base.getPosition());
 			//AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
 			return newAction;   
-    }
+        }
     
-    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500) {
-        // make sure we aren't loitering at the base
-        maxBias = Math.max(asteroidBias, beaconBias);
-        current = null;
-        aimingForBase.put(ship.getId(), false);
-    }
+        if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2500) {
+            // make sure we aren't loitering at the base
+            maxBias = Math.max(asteroidBias, beaconBias);
+            current = null;
+            aimingForBase.put(ship.getId(), false);
+        }
         
-    if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
+        if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to beacon action
 			AbstractAction newAction = null;
 			Beacon beacon = beaconManager.getBestBeacon(space);
@@ -145,9 +149,9 @@ public class project1 extends TeamClient {
 
 			aimingForBase.put(ship.getId(), false);
 			return newAction;
-    }
+        }
         
-    if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
+        if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
 			// Perform move to asteroid action
 			aimingForBase.put(ship.getId(), false);
 			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
@@ -165,13 +169,11 @@ public class project1 extends TeamClient {
 					//newAction = new MoveToObjectAction(space, currentPosition, beacon);
 				}
 			} else {
-        asteroidToShipMap.put(asteroid.getId(), ship);
-        Vector2D interceptVector = asteroidManager.velocityVectorAsteroidIntercept(space, asteroid);
-				newAction = new MoveAction(space, currentPosition, asteroid.getPosition(), interceptVector);
-				//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
-			}
-			return newAction;
-    }
+                asteroidToShipMap.put(asteroid.getId(), ship);
+				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
+		    }
+		    return newAction;
+        }
         
         // if nothing else, return current
         //System.out.printf("Maintaining current : %s\n", current.toString());
@@ -187,15 +189,12 @@ public class project1 extends TeamClient {
 			Asteroid asteroid = (Asteroid) space.getObjectById(asteroidId);
 			if (asteroid != null && !asteroid.isAlive()) {
 				finishedAsteroids.add(asteroid);
-				//System.out.println("Removing asteroid from map");
 			}
 		}
 
 		for (Asteroid asteroid : finishedAsteroids) {
 			asteroidToShipMap.remove(asteroid);
 		}
-
-
 	}
 
 	@Override
@@ -205,7 +204,7 @@ public class project1 extends TeamClient {
 		aimingForBase = new HashMap<UUID, Boolean>();
 
 		beaconManager = new BeaconManager();
-		asteroidManager = new AsteroidManager();
+		asteroidManager = new AsteroidManager(false);
 		baseManager = new BaseManager();
 	}
 
@@ -285,7 +284,6 @@ public class project1 extends TeamClient {
 					purchases.put(base.getId(), PurchaseTypes.SHIP);
 					break;
 				}
-
 			}
 
 		}
