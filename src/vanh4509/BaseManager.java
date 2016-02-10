@@ -40,7 +40,7 @@ import spacesettlers.utilities.Position;
  */
 public class BaseManager extends Object {
 
-	private double Base_Scale_Factor = 1.0;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
+	private double Base_Scale_Factor = 1.1;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
 	private double Base_Offset_Factor = 0.0;  		// An offset factor used to determine how overall more favorable we want to be to navigating to Bases
 	private double Ship_Mass_Factor = 750.0;			// A scaling factor used to determine how much mass, i.e. resources we have on board 
 

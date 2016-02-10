@@ -96,17 +96,18 @@ public class project1 extends TeamClient {
 	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space, Ship ship) {
 		AbstractAction current = ship.getCurrentAction();
 
-        if (current.isMovementFinished(space)) {
-        // reset the current action if we aren't moving
-          current = null;
-        }
-    
-        if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
+    if (current.isMovementFinished(space)) {
+    // reset the current action if we aren't moving
+      current = null;
+    }
+
+    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
 			current = null;
 			aimingForBase.put(ship.getId(), false);
 		}
     
 		Position currentPosition = ship.getPosition();
+
 
 		beaconManager.updateWeights(space, ship); 			// Update weights in our beacon manager
 		asteroidManager.updateWeights(space, ship); 		// Update weights in our asteroid manager
@@ -115,18 +116,11 @@ public class project1 extends TeamClient {
 		double beaconBias = beaconManager.getBiasOfBestBeacon();
 		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
 		double baseBias = baseManager.getBiasOfBestBase();
-    
+		
         // compute the maximum bias
-        double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
-
-    if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
-			// Perform move to base action 
-
-        if (ship.getEnergy() < 1500) {
-            maxBias = beaconBias;
-        }
+    double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
     
-        if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
+    if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
@@ -134,7 +128,7 @@ public class project1 extends TeamClient {
 			
 			return newAction;   
 
-        } else if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
+      } else if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
     		// Perform move to beacon action
 
     		aimingForBase.put(ship.getId(), false);
@@ -151,7 +145,7 @@ public class project1 extends TeamClient {
 
     		return newAction;
 
-        } else if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
+      } else if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
     		// Perform move to asteroid action
 
 
@@ -175,7 +169,7 @@ public class project1 extends TeamClient {
     			//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
     		}
 
-    		return newAction;
+    			return newAction;
         }   
 		return current;
 	}

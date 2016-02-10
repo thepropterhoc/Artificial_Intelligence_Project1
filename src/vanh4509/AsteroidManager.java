@@ -148,6 +148,8 @@ public class AsteroidManager extends Object {
     public double getBiasOfBestAsteroid(){
         if(maxWeightUUID == null){
             return -1.0;
+        } else if (useStdKRep) {
+            return asteroidWeights.get(maxWeightUUID).doubleValue();
         } else {
             return teamToAsteroidWeightsMap.get(maxWeightUUID).doubleValue();
         }
