@@ -124,7 +124,6 @@ public class project1 extends TeamClient {
 
     if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
 			// Perform move to base action 
-    	System.out.println("Move to base selected");
 
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
@@ -142,7 +141,6 @@ public class project1 extends TeamClient {
 			// if there is no beacon, then just skip a turn
 
 			if (beacon == null) {
-				System.out.println("Beacon is null");
 				newAction = new DoNothingAction();
 			} else {
 				newAction = new MoveToObjectAction(space, currentPosition, beacon);
@@ -277,21 +275,6 @@ public class project1 extends TeamClient {
 				}
 			}		
 		} 
-		
-
-		// can I buy a ship?
-		if (purchaseCosts.canAfford(PurchaseTypes.SHIP, resourcesAvailable) && bought_base == false) {
-			for (AbstractActionableObject actionableObject : actionableObjects) {
-				if (actionableObject instanceof Base) {
-					Base base = (Base) actionableObject;
-					
-					purchases.put(base.getId(), PurchaseTypes.SHIP);
-					break;
-				}
-
-			}
-
-		}
 
 
 		return purchases;
