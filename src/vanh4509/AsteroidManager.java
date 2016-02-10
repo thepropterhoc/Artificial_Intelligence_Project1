@@ -43,9 +43,9 @@ public class AsteroidManager extends Object {
     private boolean useStdKRep; // changes the knowledge representation used during play
     private String friendlyTeamName = null; // our team name. Used in alternate KR
 
-    private static final double ASTEROID_SCALE_FACTOR = 1.2; // A scaling factor to determine how sensitive the ship is to asteroids
+    private static final double ASTEROID_SCALE_FACTOR = 1.002; // A scaling factor to determine how sensitive the ship is to asteroids
     
-    private static final double ASTEROID_OFFSET_FACTOR = 0.01; // A scalar offset that determines how sensitive the ship is to asteroids
+    private static final double ASTEROID_OFFSET_FACTOR = 0.0; // A scalar offset that determines how sensitive the ship is to asteroids
     
     private static final double MAXIMUM_ASTEROID_VALUE = 707.0; // maximum possible asteroid value.
                                                                 // calculated by assuming maximum valued asteroid to be all-metal and of maximum area
@@ -69,7 +69,9 @@ public class AsteroidManager extends Object {
      * 
      * @return (void) 
      */
-	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
+	public void updateWeights(Toroidal2DPhysics space, 
+        Ship ship) {
+
         double maxWeight = -1.0;
 
         maxWeightUUID = null;
@@ -133,7 +135,8 @@ public class AsteroidManager extends Object {
      * 
      * @return bias weight of asteroid
      */
-    private double getAsteroidWeight(double distance, double value) {
+    private double getAsteroidWeight(double distance, 
+        double value) {
         return (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
     }
     

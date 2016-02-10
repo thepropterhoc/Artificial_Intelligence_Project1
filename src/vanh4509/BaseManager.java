@@ -41,7 +41,7 @@ public class BaseManager extends Object {
 
 	// --------------------- Class Variable Declarations ---------------------
 
-	private static final double Base_Scale_Factor = 1.1;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
+	private static final double Base_Scale_Factor = 1.8;   		// A scaling factor used to determine the sensitivity of the BaseManager to conditions in the environment 
 	private static final double Base_Offset_Factor = 0.0;  		// An offset factor used to determine how overall more favorable we want to be to navigating to Bases
 	private static final double Ship_Mass_Factor = 750.0;			// A scaling factor used to determine how much mass, i.e. resources we have on board 
 
@@ -59,7 +59,8 @@ public class BaseManager extends Object {
 	* 
 	* @return (void)
 	*/
-	public void updateWeights(Toroidal2DPhysics space, Ship ship){
+	public void updateWeights(Toroidal2DPhysics space, 
+		Ship ship){
 
 		maxWeight = Double.MIN_VALUE;
 		maxWeightUUID = null;

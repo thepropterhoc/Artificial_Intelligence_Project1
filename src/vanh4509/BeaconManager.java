@@ -41,7 +41,7 @@ public class BeaconManager extends Object {
 
 	// --------------------- Class Variable Declarations ---------------------
 
-	private static final double Beacon_Scale_Factor = 0.9;			// A scaling factor used to determine the sensitivity of the BeaconManager to conditions in the environment
+	private static final double Beacon_Scale_Factor = 0.8;			// A scaling factor used to determine the sensitivity of the BeaconManager to conditions in the environment
 	private static final double Beacon_Offset_Factor = 0.0;			// An offset factor used to determine how overall more favorable we want to be to navigating to Beacons
 
 	private double maxWeight = -1.0;  				// Stores the weight of the best available Beacon
@@ -57,7 +57,8 @@ public class BeaconManager extends Object {
 	* 
 	* @return (void)
 	*/
-	public void updateWeights(Toroidal2DPhysics space, Ship ship){
+	public void updateWeights(Toroidal2DPhysics space, 
+		Ship ship){
 		
 		maxWeight = -1.0;
 		maxWeightUUID = null;
