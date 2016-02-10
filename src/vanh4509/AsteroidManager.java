@@ -29,6 +29,9 @@ import spacesettlers.utilities.Position;
 import spacesettlers.utilities.Vector2D;
 
 public class AsteroidManager extends Object {
+    private boolean useStdKRep;
+    private String friendlyTeamName = null;
+
     private double ASTEROID_SCALE_FACTOR = 1.2;
     private double ASTEROID_OFFSET_FACTOR = 0.01;
     
@@ -36,53 +39,62 @@ public class AsteroidManager extends Object {
     // (15^2 * PI) * METALS_DENSITY (0.45)
     private double MAXIMUM_ASTEROID_VALUE = 707.0;
     
-	HashMap<UUID, Double> asteroidWeights = new HashMap<UUID, Double>();
-    HashMap<UUID, Vector2D> asteroidVelocities = new HashMap<UUID, Vector2D>();
-    HashMap<UUID, Position> asteroidPreviousPositions = new HashMap<UUID, Position>();
-    double previousTimeStep = 0.0;
+	HashMap<UUID, Double> asteroidWeights;
+    HashMap<UUID, Double> teamToAsteroidWeightsMap;
 
     UUID maxWeightUUID = null;
     
 	public void updateWeights(Toroidal2DPhysics space, Ship ship) {
         double maxWeight = -1.0;
+
+        maxWeightUUID = null;
+        friendlyTeamName = ship.getTeamName();
         
         // scrub the hashmaps and start over
         asteroidWeights.clear();
+        teamToAsteroidWeightsMap.clear();
         
-        for (Asteroid ast : space.getAsteroids()) {
-            // weight is value / distance
-            if (ast != null && ast.isMineable() && ast.isAlive() && ast.getPosition().getTranslationalVelocity().getMagnitude() == 0.0){
-                double value = ast.getResources().getTotal();
-                double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
-                double weight = (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
+        if (useStdKRep) {
+            for (Asteroid ast : space.getAsteroids()) {
+                // weight is value / distance
+                if (ast != null && ast.isMineable() && ast.isAlive() && ast.getPosition().getTranslationalVelocity().getMagnitude() == 0.0){
+                    double value = ast.getResources().getTotal();
+                    double distance = space.findShortestDistance(ship.getPosition(), ast.getPosition());
+                    double weight = getAsteroidWeight(distance, value);
 
-                Position astPosition = ast.getPosition();
-                double currentStep = space.getTimestep();
-
-                double timeDifference = currentStep - previousTimeStep;
-                double deltaX;
-                double deltaY;
-                if (asteroidPreviousPositions.containsKey(ast.getId())){
-                    Position previousAstPosition = asteroidPreviousPositions.get(ast.getId());
-                    deltaX = (double) astPosition.getX() - previousAstPosition.getX();
-                    deltaY = (double) astPosition.getY() - previousAstPosition.getY();
-                } else {
-                    deltaY = 0.0;
-                    deltaX = 0.0;
+                    // update the maps
+                    asteroidWeights.put(ast.getId(), new Double(weight));
+                
+                    // update max uuid
+                    maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
                 }
+            }
+        } else {
+            for (Asteroid ast : space.getAsteroids()) {
+                String closestTeamName = null;
+                double closestDistance = Double.MAX_VALUE;
+                
+                if (ast != null && ast.isMineable() && ast.isAlive() && ast.getPosition().getTranslationalVelocity().getMagnitude() == 0.0) {
+                    // for each asteroid, find the ship closest to it
+                    for (Ship s : space.getShips()) {
+                        double distance = space.findShortestDistance(s.getPosition(), ast.getPosition());
 
-                Vector2D asteroidVelocity = new Vector2D(deltaX, deltaY);
-                asteroidVelocities.put(ast.getId(), asteroidVelocity);
-                
-                asteroidPreviousPositions.put(ast.getId(), astPosition);
-                // update the maps
-                asteroidWeights.put(ast.getId(), new Double(weight));
-                
-                // update max uuid
-                maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            closestTeamName = s.getTeamName();
+                        }
+                    }
+                    // update the map
+                    double weight = getAsteroidWeight(closestDistance, ast.getResources().getTotal());
+
+                    if (friendlyTeamName.equals(closestTeamName)) {
+                        // update max uuid and weight
+                        maxWeightUUID = weight > maxWeight ? ast.getId() : maxWeightUUID;
+                        teamToAsteroidWeightsMap.put(ast.getId(), weight);
+                    }
+                }
             }
         }
-        previousTimeStep = space.getTimestep();
 	}
 
 	public Asteroid getBestAsteroid(Toroidal2DPhysics space) {
@@ -94,7 +106,21 @@ public class AsteroidManager extends Object {
         if(maxWeightUUID == null){
             return -1.0;
         } else {
-            return asteroidWeights.get(maxWeightUUID).doubleValue();
+            return teamToAsteroidWeightsMap.get(maxWeightUUID).doubleValue();
         }
+    }
+    
+    private double getAsteroidWeight(double distance, double value) {
+        return (value / MAXIMUM_ASTEROID_VALUE) / distance * ASTEROID_SCALE_FACTOR + ASTEROID_OFFSET_FACTOR;
+    }
+    
+    public AsteroidManager() {
+        this(true);
+    }
+    
+    public AsteroidManager(boolean useStd) {
+        this.useStdKRep = useStd;
+        asteroidWeights = new HashMap<UUID, Double>();
+        teamToAsteroidWeightsMap = new HashMap<UUID, Double>();
     }
 }

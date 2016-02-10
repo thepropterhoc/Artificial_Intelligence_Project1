@@ -93,22 +93,19 @@ public class project1 extends TeamClient {
 	 * @param ship
 	 * @return
 	 */
-	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space,
-			Ship ship) {
-
+	private AbstractAction getAsteroidCollectorAction(Toroidal2DPhysics space, Ship ship) {
 		AbstractAction current = ship.getCurrentAction();
 
-    if (current.isMovementFinished(space)) {
-    // reset the current action if we aren't moving
-      current = null;
-    }
+        if (current.isMovementFinished(space)) {
+        // reset the current action if we aren't moving
+          current = null;
+        }
     
-
-    if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
+        if (ship.getResources().getTotal() == 0 && ship.getEnergy() > 2000 && aimingForBase.containsKey(ship.getId()) && aimingForBase.get(ship.getId())) {
 			current = null;
 			aimingForBase.put(ship.getId(), false);
 		}
-        
+    
 		Position currentPosition = ship.getPosition();
 
 		beaconManager.updateWeights(space, ship); 			// Update weights in our beacon manager
@@ -118,63 +115,68 @@ public class project1 extends TeamClient {
 		double beaconBias = beaconManager.getBiasOfBestBeacon();
 		double asteroidBias = asteroidManager.getBiasOfBestAsteroid();
 		double baseBias = baseManager.getBiasOfBestBase();
-        
-    // compute the maximum bias
-    double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
+    
+        // compute the maximum bias
+        double maxBias = Math.max(beaconBias, Math.max(asteroidBias, baseBias));
 
-    if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
-			// Perform move to base action 
+        // System.out.printf("%f %f %f\n", beaconBias, asteroidBias, baseBias);
 
+        if (ship.getEnergy() < 1500) {
+            maxBias = beaconBias;
+        }
+    
+        if (maxBias == baseBias && (current == null || current instanceof DoNothingAction)){
+			// Perform move to base action
 			Base base = baseManager.getBestBase(space);
 			AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			aimingForBase.put(ship.getId(), true);
 			//AbstractAction newAction = new MoveToObjectAction(space, currentPosition, base);
 			
 			return newAction;   
-    } else if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
-			// Perform move to beacon action
 
-			aimingForBase.put(ship.getId(), false);
+        } else if (maxBias == beaconBias && (current == null || current instanceof DoNothingAction)) {
+    		// Perform move to beacon action
 
-			AbstractAction newAction = null;
-			Beacon beacon = beaconManager.getBestBeacon(space);
-			// if there is no beacon, then just skip a turn
+    		aimingForBase.put(ship.getId(), false);
 
-			if (beacon == null) {
-				newAction = new DoNothingAction();
-			} else {
-				newAction = new MoveToObjectAction(space, currentPosition, beacon);
-			}
+    		AbstractAction newAction = null;
+    		Beacon beacon = beaconManager.getBestBeacon(space);
+    		// if there is no beacon, then just skip a turn
 
-			return newAction;
+    		if (beacon == null) {
+    			newAction = new DoNothingAction();
+    		} else {
+    			newAction = new MoveToObjectAction(space, currentPosition, beacon);
+    		}
 
-    } else if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
-			// Perform move to asteroid action
+    		return newAction;
+
+        } else if (maxBias == asteroidBias && (current == null || current instanceof DoNothingAction)) {
+    		// Perform move to asteroid action
 
 
-			aimingForBase.put(ship.getId(), false);
-			Asteroid asteroid = asteroidManager.getBestAsteroid(space);
+    		aimingForBase.put(ship.getId(), false);
+    		Asteroid asteroid = asteroidManager.getBestAsteroid(space);
 
-			AbstractAction newAction = null;
+    		AbstractAction newAction = null;
 
-			if (asteroid == null) {
-				// there is no asteroid available so collect a beacon
-				Beacon beacon = beaconManager.getBestBeacon(space);
-				// if there is no beacon, then just skip a turn
-				if (beacon == null) {
-					newAction = new DoNothingAction();
-				} else {
-					newAction = new MoveToObjectAction(space, currentPosition, beacon);
-					//newAction = new MoveToObjectAction(space, currentPosition, beacon);
-				}
-			} else {
-				newAction = new MoveToObjectAction(space, currentPosition, asteroid);
-				//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
-			}
+    		if (asteroid == null) {
+    			// there is no asteroid available so collect a beacon
+    			Beacon beacon = beaconManager.getBestBeacon(space);
+    			// if there is no beacon, then just skip a turn
+    			if (beacon == null) {
+    				newAction = new DoNothingAction();
+    			} else {
+    				newAction = new MoveToObjectAction(space, currentPosition, beacon);
+    				//newAction = new MoveToObjectAction(space, currentPosition, beacon);
+    			}
+    		} else {
+    			newAction = new MoveToObjectAction(space, currentPosition, asteroid);
+    			//newAction = new MoveToObjectAction(space, currentPosition, asteroid);
+    		}
 
-			return newAction;
-    }
-        
+    		return newAction;
+        }   
 		return current;
 	}
 
@@ -187,15 +189,12 @@ public class project1 extends TeamClient {
 			Asteroid asteroid = (Asteroid) space.getObjectById(asteroidId);
 			if (asteroid != null && !asteroid.isAlive()) {
 				finishedAsteroids.add(asteroid);
-				//System.out.println("Removing asteroid from map");
 			}
 		}
 
 		for (Asteroid asteroid : finishedAsteroids) {
 			asteroidToShipMap.remove(asteroid);
 		}
-
-
 	}
 
 	@Override
@@ -206,7 +205,7 @@ public class project1 extends TeamClient {
 		asteroidCollectorID = null;
 
 		beaconManager = new BeaconManager();
-		asteroidManager = new AsteroidManager();
+		asteroidManager = new AsteroidManager(true);
 		baseManager = new BaseManager();
 	}
 
@@ -274,9 +273,7 @@ public class project1 extends TeamClient {
 					}
 				}
 			}		
-		} 
-
-
+		}
 		return purchases;
 	}
 
